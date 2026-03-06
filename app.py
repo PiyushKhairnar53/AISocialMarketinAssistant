@@ -46,10 +46,6 @@ def _sidebar() -> None:
         st.session_state.tavily_api_key = tavily_key or None
 
         st.markdown("---")
-        st.caption(
-            "Tip: add a `brand_voice.txt` file next to `app.py` "
-            "to customize your brand tone."
-        )
 
 
 def _run_research(graph: Any, goal: str) -> MarketingState:
@@ -355,7 +351,6 @@ def main() -> None:
                 st.markdown("💡 How To Engage")
                 st.write(strat.get("content_pillar", ""))
 
-    st.subheader("Campaign Planning")
     # Automatically generate after research has produced insights
     can_generate_strategy = bool(state.insights) and not state.error
     if not can_generate_strategy:
@@ -379,47 +374,6 @@ def main() -> None:
             cohere_api_key=st.session_state.cohere_api_key,
         )
         st.markdown(strategy_text)
-
-    st.markdown("---")
-    st.subheader("Content Preview")
-
-    charts_ready = bool(state.visual_specs)
-    can_create_post = charts_ready and bool(state.insights) and not state.error
-
-    if charts_ready:
-        create_post = st.button(
-            "Create Post",
-            disabled=not can_create_post,
-        )
-    else:
-        create_post = False
-        st.info("Run research first to generate charts, then you can create a post.")
-
-    if create_post and can_create_post:
-        if not st.session_state.cohere_api_key:
-            st.error("Please enter your Cohere API key in the sidebar.")
-        else:
-            st.session_state.state = _run_creative(
-                st.session_state.creative_graph,
-                state,
-            )
-            raw_state = st.session_state.state
-            state = (
-                MarketingState.model_validate(raw_state)
-                if isinstance(raw_state, dict)
-                else raw_state
-            )
-
-    if state.generated_post:
-        st.text_area(
-            "Generated Post",
-            value=state.generated_post,
-            height=200,
-        )
-        st.button(
-            "Copy to Clipboard (manual)",
-            help="Select the text above and press Ctrl+C / Cmd+C.",
-        )
 
 
 if __name__ == "__main__":
